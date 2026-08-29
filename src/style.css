@@ -326,3 +326,24 @@ code {
   height: 40px;
   transform: translateX(0);
 }
+
+.winner-car-image {
+  width: 100px;
+  height: 40px;
+  display: block;
+  margin: 0 auto;
+}
+
+.sort-button {
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sort-button:hover {
+  text-decoration: underline;
+}

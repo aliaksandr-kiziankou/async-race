@@ -3,6 +3,7 @@ import { garageState } from '../state/store.ts';
 import { createCar, deleteCar, loadCars, updateCar, createWinner } from '../state/garage-state.ts';
 import { createCarElement } from './car.ts';
 import { startRace } from '../animation/race.ts';
+import { resetAnimation } from '../animation/car-animation.ts';
 
 let editingCarId: number | null = null;
 
@@ -31,6 +32,7 @@ function createGarageHeader(): HTMLDivElement {
   const header = document.createElement('div');
 
   header.className = 'garage-header';
+
   header.innerHTML = `
     <h1>Garage</h1>
     <p>Page #${garageState.page}</p>
@@ -39,52 +41,135 @@ function createGarageHeader(): HTMLDivElement {
     <button class="reset-race" type="button">Reset Race</button>
   `;
 
-  const startRaceButton = header.querySelector<HTMLButtonElement>('.start-race');
+  setupStartRaceButton(header);
+  setupResetRaceButton(header);
 
-  if (startRaceButton === null) {
+  return header;
+}
+
+function setupResetRaceButton(header: HTMLDivElement): void {
+  const button = header.querySelector<HTMLButtonElement>('.reset-race');
+
+  if (button === null) {
+    throw new Error('Reset Race button was not found');
+  }
+
+  button.addEventListener('click', () => {
+    resetRace();
+
+    const winnerMessage =
+      document.querySelector<HTMLElement>('.winner-message');
+
+    winnerMessage?.remove();
+  });
+}
+
+function resetRace(): void {
+  garageState.cars.forEach((car) => {
+    resetCar(car);
+  });
+}
+
+function resetCar(car: Car): void {
+  const carElement =
+    document.querySelector<HTMLDivElement>(
+      `.car[data-id="${car.id}"]`,
+    );
+
+  if (carElement === null) {
+    return;
+  }
+
+  const image =
+    carElement.querySelector<SVGElement>('.car-image');
+
+  if (image === null) {
+    return;
+  }
+
+  resetAnimation(car.id, image);
+  resetCarButtons(carElement);
+}
+
+function resetCarButtons(carElement: HTMLDivElement): void {
+  const startButton =
+    carElement.querySelector<HTMLButtonElement>(
+      '.start-engine',
+    );
+
+  const stopButton =
+    carElement.querySelector<HTMLButtonElement>(
+      '.stop-engine',
+    );
+
+  if (startButton !== null) {
+    startButton.disabled = false;
+  }
+
+  if (stopButton !== null) {
+    stopButton.disabled = true;
+  }
+}
+
+function setupStartRaceButton(header: HTMLDivElement): void {
+  const button =
+    header.querySelector<HTMLButtonElement>('.start-race');
+
+  if (button === null) {
     throw new Error('Start Race button was not found');
   }
 
-  startRaceButton.addEventListener('click', () => {
-  void startRace(
-    garageState.cars,
-    (id) => {
-      const car = document.querySelector<HTMLDivElement>(
-        `.car[data-id="${id}"]`,
-      );
+  button.addEventListener('click', () => {
+    button.disabled = true;
 
-      if (car === null) {
-        return null;
-      }
-
-      const image = car.querySelector<SVGElement>('.car-image');
-      const track = car.querySelector<HTMLDivElement>('.car-track');
-
-      if (image === null || track === null) {
-        return null;
-      }
-
-      return {
-        image,
-        track,
-      };
-    },
-    ).then((winner) => {
-      if (winner === null) {
-        return;
-      }
-
-      showWinner(winner.car, winner.time);
-
-      void createWinner({
-        id: winner.car.id,
-        wins: 1,
-        time: winner.time,
-      });
+    void runRace().finally(() => {
+      button.disabled = false;
     });
   });
+}
 
-  return header;
+async function runRace(): Promise<void> {
+  const winner = await startRace(
+    garageState.cars,
+    getCarElements,
+  );
+
+  if (winner === null) {
+    return;
+  }
+
+  showWinner(winner.car, winner.time);
+
+  await createWinner({
+    id: winner.car.id,
+    wins: 1,
+    time: winner.time,
+  });
+}
+
+function getCarElements(id: number): {image: SVGElement; track: HTMLDivElement} | null {
+  const car = document.querySelector<HTMLDivElement>(
+    `.car[data-id="${id}"]`,
+  );
+
+  if (car === null) {
+    return null;
+  }
+
+  const image =
+    car.querySelector<SVGElement>('.car-image');
+
+  const track =
+    car.querySelector<HTMLDivElement>('.car-track');
+
+  if (image === null || track === null) {
+    return null;
+  }
+
+  return {
+    image,
+    track,
+  };
 }
 
 function createCarForm(): HTMLFormElement {
@@ -219,11 +304,11 @@ export function renderGarage(): void {
 
   garage.append(createPagination());
 
-  const app = document.querySelector<HTMLDivElement>('#app');
+  const page = document.querySelector<HTMLElement>('#page');
 
-  if (app === null) {
-    throw new Error('App root element was not found');
+  if (page === null) {
+    throw new Error('Page container was not found');
   }
 
-  app.replaceChildren(garage);
+  page.replaceChildren(garage);
 }

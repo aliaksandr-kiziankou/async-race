@@ -1,4 +1,4 @@
-import type { Car, CreateCar, DriveResponse, EngineResponse, Winner } from '../state/types.ts';
+import type { Car, CreateCar, DriveResponse, EngineResponse, Winner, WinnerSortField, SortOrder } from '../state/types.ts';
 
 const API_URL = 'http://localhost:3000';
 
@@ -135,4 +135,23 @@ export async function updateWinner(id: number, wins: number, time: number): Prom
   });
 
   return parseResponse<Winner>(response);
+}
+
+export interface WinnersResponse {
+  winners: Winner[];
+  totalCount: number;
+}
+
+export async function getWinners(page: number, limit: number, sort: WinnerSortField, order: SortOrder): Promise<WinnersResponse> {
+  const response = await fetch(
+    `${API_URL}/winners?_page=${page}&_limit=${limit}&_sort=${sort}&_order=${order}`,
+  );
+
+  const winners = await parseResponse<Winner[]>(response);
+  const totalCount = Number(response.headers.get('X-Total-Count'));
+
+  return {
+    winners,
+    totalCount,
+  };
 }
