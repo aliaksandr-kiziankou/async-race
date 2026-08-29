@@ -3,11 +3,7 @@ import type { Car, WinnerSortField } from '../state/types.ts';
 import { getCars } from '../api/garage-api.ts';
 import { winnersState, loadWinners } from '../state/winners-state.ts';
 
-function createWinnerRow(
-  winner: typeof winnersState.winners[number],
-  index: number,
-  cars: Car[],
-): HTMLTableRowElement {
+function createWinnerRow(winner: typeof winnersState.winners[number], index: number, cars: Car[]): HTMLTableRowElement {
   const car = cars.find((item) => item.id === winner.id);
 
   const row = document.createElement('tr');
@@ -83,10 +79,7 @@ function createWinnersElement(): HTMLElement {
   return winners;
 }
 
-function renderWinnersTable(
-  winners: HTMLElement,
-  cars: Car[],
-): void {
+function renderWinnersTable(winners: HTMLElement, cars: Car[]): void {
   winners.insertAdjacentHTML(
     'beforeend',
     `
@@ -127,9 +120,7 @@ function renderWinnersTable(
   });
 }
 
-function getSortIndicator(
-  field: WinnerSortField,
-): string {
+function getSortIndicator(field: WinnerSortField): string {
   if (winnersState.sort !== field) {
     return '';
   }
@@ -137,9 +128,7 @@ function getSortIndicator(
   return winnersState.order === 'ASC' ? '↑' : '↓';
 }
 
-function renderSortButtons(
-  winners: HTMLElement,
-): void {
+function renderSortButtons(winners: HTMLElement): void {
   const buttons =
     winners.querySelectorAll<HTMLButtonElement>(
       '.sort-button',

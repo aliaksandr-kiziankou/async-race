@@ -16,11 +16,9 @@ export function createNavigation(): HTMLElement {
     </button>
   `;
 
-  const garageButton =
-    navigation.querySelector<HTMLButtonElement>('.garage-link');
+  const garageButton = navigation.querySelector<HTMLButtonElement>('.garage-link');
 
-  const winnersButton =
-    navigation.querySelector<HTMLButtonElement>('.winners-link');
+  const winnersButton = navigation.querySelector<HTMLButtonElement>('.winners-link');
 
   if (garageButton === null || winnersButton === null) {
     throw new Error('Navigation buttons were not found');
