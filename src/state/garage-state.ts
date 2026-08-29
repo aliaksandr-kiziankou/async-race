@@ -1,0 +1,112 @@
+import type { CreateCar, EngineResponse } from "./types.ts";
+import { garageState } from "./store.ts";
+import { 
+  startEngine as startEngineRequest,
+  stopEngine as stopEngineRequest,
+  updateCar as updateCarRequest,
+  createCar as createCarRequest,
+  deleteCar as deleteCarRequest,
+  driveCar as driveCarRequest,
+  getCars,
+} from '../api/garage-api.ts';
+
+export async function loadCars(): Promise<void> {
+    garageState.loading = true;
+  garageState.error = null;
+
+  try {
+    const { cars, totalCount } = await getCars(
+      garageState.page,
+      garageState.limit,
+    );
+
+    garageState.cars = cars;
+    garageState.totalCount = totalCount;
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to load cars';
+  } finally {
+    garageState.loading = false;
+  }
+}
+
+export async function createCar(car: CreateCar): Promise<void> {
+  garageState.error = null;
+
+  try {
+    await createCarRequest(car);
+    await loadCars();
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to create car';
+  }
+}
+
+export async function deleteCar(id: number): Promise<void> {
+  garageState.error = null;
+
+  try {
+    await deleteCarRequest(id);
+    await loadCars();
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to delete car';
+  }
+}
+
+export async function updateCar(
+  id: number,
+  car: CreateCar,
+): Promise<void> {
+  garageState.error = null;
+
+  try {
+    await updateCarRequest(id, car);
+    await loadCars();
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to update car';
+  }
+}
+
+export async function startEngine(
+  id: number,
+): Promise<EngineResponse | null> {
+  garageState.error = null;
+
+  try {
+    return await startEngineRequest(id);
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to start engine';
+
+    return null;
+  }
+}
+
+export async function stopEngine(id: number): Promise<void> {
+  garageState.error = null;
+
+  try {
+    await stopEngineRequest(id);
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to stop engine';
+  }
+}
+
+export async function driveCar(
+  id: number,
+): Promise<boolean> {
+  garageState.error = null;
+
+  try {
+    const response = await driveCarRequest(id);
+    return response.success;
+  } catch (error) {
+    garageState.error =
+      error instanceof Error ? error.message : 'Failed to drive car';
+
+    return false;
+  }
+}
