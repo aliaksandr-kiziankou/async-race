@@ -1,4 +1,4 @@
-import type { CreateCar, EngineResponse } from "./types.ts";
+import type { CreateCar, EngineResponse, Winner } from "./types.ts";
 import { garageState } from "./store.ts";
 import { 
   startEngine as startEngineRequest,
@@ -7,6 +7,9 @@ import {
   createCar as createCarRequest,
   deleteCar as deleteCarRequest,
   driveCar as driveCarRequest,
+  createWinner as createWinnerRequest,
+  updateWinner as updateWinnerRequest,
+  getWinner as getWinnerRequest,
   getCars,
 } from '../api/garage-api.ts';
 
@@ -54,10 +57,7 @@ export async function deleteCar(id: number): Promise<void> {
   }
 }
 
-export async function updateCar(
-  id: number,
-  car: CreateCar,
-): Promise<void> {
+export async function updateCar(id: number, car: CreateCar): Promise<void> {
   garageState.error = null;
 
   try {
@@ -69,9 +69,7 @@ export async function updateCar(
   }
 }
 
-export async function startEngine(
-  id: number,
-): Promise<EngineResponse | null> {
+export async function startEngine(id: number): Promise<EngineResponse | null> {
   garageState.error = null;
 
   try {
@@ -95,9 +93,7 @@ export async function stopEngine(id: number): Promise<void> {
   }
 }
 
-export async function driveCar(
-  id: number,
-): Promise<boolean> {
+export async function driveCar(id: number): Promise<boolean> {
   garageState.error = null;
 
   try {
@@ -108,5 +104,33 @@ export async function driveCar(
       error instanceof Error ? error.message : 'Failed to drive car';
 
     return false;
+  }
+}
+
+export async function createWinner(
+  winner: Winner,
+): Promise<void> {
+  garageState.error = null;
+
+  try {
+    const existingWinner = await getWinnerRequest(winner.id);
+
+    if (existingWinner === null) {
+      await createWinnerRequest(winner);
+      return;
+    }
+
+    const updatedWinner: Winner = {
+      id: existingWinner.id,
+      wins: existingWinner.wins + 1,
+      time: Math.min(existingWinner.time, winner.time),
+    };
+
+    await updateWinnerRequest(winner.id, updatedWinner.wins, updatedWinner.time);
+  } catch (error) {
+    garageState.error =
+      error instanceof Error
+        ? error.message
+        : 'Failed to save winner';
   }
 }

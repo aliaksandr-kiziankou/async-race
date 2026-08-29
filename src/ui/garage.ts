@@ -1,11 +1,31 @@
 import type { Car, CreateCar } from '../state/types.ts';
 import { garageState } from '../state/store.ts';
-import { createCar, deleteCar, loadCars, updateCar } from '../state/garage-state.ts';
+import { createCar, deleteCar, loadCars, updateCar, createWinner } from '../state/garage-state.ts';
 import { createCarElement } from './car.ts';
-import { raceState } from '../state/race-state.ts';
 import { startRace } from '../animation/race.ts';
 
 let editingCarId: number | null = null;
+
+function showWinner(car: Car, time: number): void {
+  const message = document.createElement('p');
+
+  message.className = 'winner-message';
+  message.textContent =
+    `Winner: ${car.name}! Time: ${time.toFixed(2)}s`;
+
+  const garage = document.querySelector<HTMLElement>('.garage');
+
+  if (garage === null) {
+    return;
+  }
+
+  const oldMessage =
+    garage.querySelector<HTMLElement>('.winner-message');
+
+  oldMessage?.remove();
+
+  garage.prepend(message);
+}
 
 function createGarageHeader(): HTMLDivElement {
   const header = document.createElement('div');
@@ -26,30 +46,42 @@ function createGarageHeader(): HTMLDivElement {
   }
 
   startRaceButton.addEventListener('click', () => {
-    void startRace(
-      garageState.cars,
-      (id) => {
-        const car = document.querySelector<HTMLDivElement>(
-          `.car[data-id="${id}"]`,
-        );
+  void startRace(
+    garageState.cars,
+    (id) => {
+      const car = document.querySelector<HTMLDivElement>(
+        `.car[data-id="${id}"]`,
+      );
 
-        if (car === null) {
+      if (car === null) {
         return null;
-        }
+      }
 
-        const image = car.querySelector<SVGElement>('.car-image');
-        const track = car.querySelector<HTMLDivElement>('.car-track');
+      const image = car.querySelector<SVGElement>('.car-image');
+      const track = car.querySelector<HTMLDivElement>('.car-track');
 
-        if (image === null || track === null) {
-          return null;
-        }
+      if (image === null || track === null) {
+        return null;
+      }
 
-        return {
-          image,
-          track,
-        };
-      },
-    );
+      return {
+        image,
+        track,
+      };
+    },
+    ).then((winner) => {
+      if (winner === null) {
+        return;
+      }
+
+      showWinner(winner.car, winner.time);
+
+      void createWinner({
+        id: winner.car.id,
+        wins: 1,
+        time: winner.time,
+      });
+    });
   });
 
   return header;
@@ -170,20 +202,20 @@ export function renderGarage(): void {
   garage.append(createGarageHeader());
 
   garageState.cars.forEach((car) => {
-  garage.append(
-    createCarElement(car, {
-      onUpdate: () => {
-        editingCarId = car.id;
-        renderGarage();
-      },
-      onDelete: () => {
-        void deleteCar(car.id).then(() => {
+    garage.append(
+      createCarElement(car, {
+        onUpdate: () => {
+          editingCarId = car.id;
           renderGarage();
-        });
-      },
-    }),
-  );
-});
+        },
+        onDelete: () => {
+          void deleteCar(car.id).then(() => {
+            renderGarage();
+          });
+        },
+      }),
+    );
+  });
 
   garage.append(createPagination());
 

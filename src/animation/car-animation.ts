@@ -1,6 +1,6 @@
 import { getCarState } from '../state/car-state.ts';
 
-export function animateCar(id: number, element: SVGElement, distance: number, velocity: number, trackLength: number): Promise<void> {
+export function animateCar(id: number, element: SVGElement, distance: number, velocity: number, trackLength: number): Promise<number> {
   const carState = getCarState(id);
   const startTime = performance.now();
   const duration = distance / velocity;
@@ -10,7 +10,7 @@ export function animateCar(id: number, element: SVGElement, distance: number, ve
   return new Promise((resolve) => {
     function frame(currentTime: number): void {
       if (!carState.isDriving) {
-        resolve();
+        resolve(0);
         return;
       }
 
@@ -28,7 +28,7 @@ export function animateCar(id: number, element: SVGElement, distance: number, ve
 
       carState.animationId = null;
       carState.isDriving = false;
-      resolve();
+      resolve(duration/1000);
     }
 
     carState.animationId = requestAnimationFrame(frame);

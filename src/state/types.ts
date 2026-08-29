@@ -25,9 +25,6 @@ export interface DriveResponse {
 }
 
 export type EngineStatus = 'started' | 'stopped' | 'drive';
-
 export type WinnerSortField = 'wins' | 'time';
-
 export type SortOrder = 'ASC' | 'DESC';
-
 export type View = 'garage' | 'winners';

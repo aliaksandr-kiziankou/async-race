@@ -1,4 +1,4 @@
-import type { Car, CreateCar, DriveResponse, EngineResponse, EngineStatus } from '../state/types.ts';
+import type { Car, CreateCar, DriveResponse, EngineResponse, Winner } from '../state/types.ts';
 
 const API_URL = 'http://localhost:3000';
 
@@ -98,4 +98,41 @@ export async function driveCar(id: number): Promise<DriveResponse> {
   );
 
   return parseResponse<DriveResponse>(response);
+}
+
+export async function createWinner(winner: Winner): Promise<Winner> {
+  const response = await fetch(`${API_URL}/winners`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(winner),
+  });
+
+  return parseResponse<Winner>(response);
+}
+
+export async function getWinner(id: number): Promise<Winner | null> {
+  const response = await fetch(`${API_URL}/winners/${id}`);
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  return parseResponse<Winner>(response);
+}
+
+export async function updateWinner(id: number, wins: number, time: number): Promise<Winner> {
+  const response = await fetch(`${API_URL}/winners/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      wins,
+      time,
+    }),
+  });
+
+  return parseResponse<Winner>(response);
 }

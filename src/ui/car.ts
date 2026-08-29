@@ -1,8 +1,8 @@
 import type { Car } from '../state/types.ts';
-import { stopEngine, driveCar } from '../state/garage-state.ts';
+import { stopEngine } from '../state/garage-state.ts';
 import { stopAnimation } from '../animation/car-animation.ts';
-import { getCarState } from '../state/car-state.ts';
-import { startCarRace } from '../animation/race.ts';
+import { startEngine } from '../state/garage-state.ts';
+import { animateCar } from '../animation/car-animation.ts';
 
 interface CarActions {
   onUpdate: () => void;
@@ -61,10 +61,27 @@ function setupStartButton(carElement: HTMLDivElement, car: Car ): void {
     startButton.disabled = true;
     stopButton.disabled = false;
 
-    const trackLength = track.clientWidth - image.clientWidth;
+    void startEngine(car.id).then((engine) => {
+        if (engine === null) {
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        return;
+      }
 
-    void startCarRace(car, image, trackLength).then(() => {
-      stopButton.disabled = true;
+      const track = carElement.querySelector<HTMLDivElement>('.car-track');
+
+      if (track === null) {
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        return;
+      }
+
+      const trackLength = track.clientWidth - image.clientWidth;
+
+      void animateCar(car.id, image, engine.distance, engine.velocity, trackLength).then(() => {
+        stopButton.disabled = true;
+        startButton.disabled = false;
+      });
     });
   });
 }
