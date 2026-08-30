@@ -1,5 +1,6 @@
 import type { CreateCar, EngineResponse, Winner } from "./types.ts";
 import { garageState } from "./store.ts";
+import { generateRandomCar } from '../utils/car-generator.ts';
 import { 
   startEngine as startEngineRequest,
   stopEngine as stopEngineRequest,
@@ -10,8 +11,11 @@ import {
   createWinner as createWinnerRequest,
   updateWinner as updateWinnerRequest,
   getWinner as getWinnerRequest,
+  deleteWinner as deleteWinnerRequest,
   getCars,
 } from '../api/garage-api.ts';
+
+const RANDOM_CAR_COUNT = 100;
 
 export async function loadCars(): Promise<void> {
     garageState.loading = true;
@@ -50,10 +54,13 @@ export async function deleteCar(id: number): Promise<void> {
 
   try {
     await deleteCarRequest(id);
+    await deleteWinnerRequest(id);
     await loadCars();
   } catch (error) {
     garageState.error =
-      error instanceof Error ? error.message : 'Failed to delete car';
+      error instanceof Error
+        ? error.message
+        : 'Failed to delete car';
   }
 }
 
@@ -132,5 +139,22 @@ export async function createWinner(
       error instanceof Error
         ? error.message
         : 'Failed to save winner';
+  }
+}
+
+export async function generateCars(): Promise<void> {
+  garageState.error = null;
+
+  try {
+    for (let index = 0; index < RANDOM_CAR_COUNT; index += 1) {
+      await createCarRequest(generateRandomCar());
+    }
+
+    await loadCars();
+  } catch (error) {
+    garageState.error =
+      error instanceof Error
+        ? error.message
+        : 'Failed to generate cars';
   }
 }

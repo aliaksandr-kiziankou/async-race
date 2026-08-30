@@ -347,3 +347,7 @@ code {
 .sort-button:hover {
   text-decoration: underline;
 }
+
+.navigation {
+  padding-bottom: 5px;
+}

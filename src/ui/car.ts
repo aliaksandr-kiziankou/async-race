@@ -15,13 +15,6 @@ export function createCarElement( car: Car, actions: CarActions ): HTMLDivElemen
   carElement.className = 'car';
   carElement.dataset.id = String(car.id);
   carElement.innerHTML = `
-    <div class="car-controls">
-      <button class="update-car" type="button">Update</button>
-      <button class="delete-car" type="button">Delete</button>
-      <button class="start-engine" type="button">Start</button>
-      <button class="stop-engine" type="button" disabled>Stop</button>
-    </div>
-
     <div class="car-info">
       <span>${car.name}</span>
       <div class="car-track">
@@ -31,6 +24,13 @@ export function createCarElement( car: Car, actions: CarActions ): HTMLDivElemen
           <circle cx="75" cy="28" r="6" />
         </svg>
       </div>
+    </div>
+
+    <div class="car-controls">
+      <button class="update-car" type="button">Update</button>
+      <button class="delete-car" type="button">Delete</button>
+      <button class="start-engine" type="button">Start</button>
+      <button class="stop-engine" type="button" disabled>Stop</button>
     </div>
   `;
 

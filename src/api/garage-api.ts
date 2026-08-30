@@ -155,3 +155,13 @@ export async function getWinners(page: number, limit: number, sort: WinnerSortFi
     totalCount,
   };
 }
+
+export async function deleteWinner(id: number): Promise<void> {
+  const response = await fetch(`${API_URL}/winners/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete winner: ${response.status}`);
+  }
+}

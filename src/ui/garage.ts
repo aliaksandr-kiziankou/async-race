@@ -1,6 +1,6 @@
 import type { Car, CreateCar } from '../state/types.ts';
 import { garageState } from '../state/store.ts';
-import { createCar, deleteCar, loadCars, updateCar, createWinner } from '../state/garage-state.ts';
+import { createCar, deleteCar, loadCars, updateCar, generateCars, createWinner } from '../state/garage-state.ts';
 import { createCarElement } from './car.ts';
 import { startRace } from '../animation/race.ts';
 import { resetAnimation } from '../animation/car-animation.ts';
@@ -37,25 +37,52 @@ function createGarageHeader(): HTMLDivElement {
     <h1>Garage</h1>
     <p>Page #${garageState.page}</p>
     <p>Cars: ${garageState.totalCount}</p>
+    <button class="generate-cars" type="button">
+      Generate 100 Cars
+    </button>
     <button class="start-race" type="button">Start Race</button>
     <button class="reset-race" type="button">Reset Race</button>
   `;
 
+  setupGenerateCarsButton(header);
   setupStartRaceButton(header);
   setupResetRaceButton(header);
 
   return header;
 }
 
-function setupResetRaceButton(header: HTMLDivElement): void {
-  const button = header.querySelector<HTMLButtonElement>('.reset-race');
+function setupGenerateCarsButton(header: HTMLDivElement): void {
+  const generateButton =
+    header.querySelector<HTMLButtonElement>('.generate-cars');
 
-  if (button === null) {
-    throw new Error('Reset Race button was not found');
+  if (generateButton === null) {
+    throw new Error('Generate button was not found');
   }
 
-  button.addEventListener('click', () => {
+  generateButton.addEventListener('click', () => {
+    generateButton.disabled = true;
+
+    void generateCars().then(() => {
+      generateButton.disabled = false;
+      renderGarage();
+    });
+  });
+}
+
+function setupResetRaceButton(header: HTMLDivElement): void {
+  const resetButton =
+    header.querySelector<HTMLButtonElement>('.reset-race');
+
+  const startButton =
+    header.querySelector<HTMLButtonElement>('.start-race');
+
+  if (resetButton === null || startButton === null) {
+    throw new Error('Race buttons were not found');
+  }
+
+  resetButton.addEventListener('click', () => {
     resetRace();
+    startButton.disabled = false;
 
     const winnerMessage =
       document.querySelector<HTMLElement>('.winner-message');
