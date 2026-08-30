@@ -17,6 +17,12 @@ export function createCarElement( car: Car, actions: CarActions ): HTMLDivElemen
   carElement.innerHTML = `
     <div class="car-info">
       <span>${car.name}</span>
+      <div class="car-controls">
+      <button class="update-car" type="button">Update</button>
+      <button class="delete-car" type="button">Delete</button>
+      <button class="start-engine" type="button">Start</button>
+      <button class="stop-engine" type="button" disabled>Stop</button>
+    </div>
       <div class="car-track">
         <svg class="car-image" viewBox="0 0 100 40" aria-label="${car.name}">
           <path fill="${car.color}" d="M10 25h80l-5-12H65L55 5H35L25 13H15z"/>
@@ -26,12 +32,7 @@ export function createCarElement( car: Car, actions: CarActions ): HTMLDivElemen
       </div>
     </div>
 
-    <div class="car-controls">
-      <button class="update-car" type="button">Update</button>
-      <button class="delete-car" type="button">Delete</button>
-      <button class="start-engine" type="button">Start</button>
-      <button class="stop-engine" type="button" disabled>Stop</button>
-    </div>
+    
   `;
 
   setupStartButton(carElement, car);

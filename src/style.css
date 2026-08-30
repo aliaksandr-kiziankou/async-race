@@ -327,6 +327,11 @@ code {
   transform: translateX(0);
 }
 
+.car-controls {
+  display: flex;
+  justify-content: center;
+}
+
 .winner-car-image {
   width: 100px;
   height: 40px;
@@ -350,4 +355,15 @@ code {
 
 .navigation {
   padding-bottom: 5px;
+}
+
+.garage-header {
+  padding-bottom: 10px;
+  border-bottom: solid 1px #9ca3af;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
