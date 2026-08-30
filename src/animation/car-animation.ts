@@ -47,10 +47,7 @@ export function stopAnimation(id: number): void {
   carState.animationId = null;
 }
 
-export function resetAnimation(
-  id: number,
-  element: SVGElement,
-): void {
+export function resetAnimation(id: number, element: SVGElement): void {
   stopAnimation(id);
 
   const carState = getCarState(id);
