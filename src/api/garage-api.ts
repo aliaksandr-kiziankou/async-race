@@ -161,6 +161,10 @@ export async function deleteWinner(id: number): Promise<void> {
     method: 'DELETE',
   });
 
+  if (response.status === 404) {
+    return;
+  }
+
   if (!response.ok) {
     throw new Error(`Failed to delete winner: ${response.status}`);
   }
